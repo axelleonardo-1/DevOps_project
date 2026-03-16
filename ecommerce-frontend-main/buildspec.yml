@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - npm install
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - echo "Subiendo los nuevos archivos a S3..."
+      - aws s3 sync dist/ s3://ecommerce-frontend-hosting --delete
+      - echo "Invalidando la caché de CloudFront..."
+      - aws cloudfront create-invalidation --distribution-id E3H0GN1LSEUF2E --paths "/*"
+
+artifacts:
+  base-directory: dist
+  files:
+    - '**/*'
