@@ -1,0 +1,9 @@
+cloudflare_api_token = "cf_api_token_placeholder"
+account_id           = "1234567890abcdef1234567890abcdef"
+zone_id              = "abcdef1234567890abcdef1234567890"
+project_name         = "devops-ecommerce"
+environment          = "demo"
+
+enable_r2                = true
+r2_location              = "wnam"
+d1_primary_location_hint = "wnam"

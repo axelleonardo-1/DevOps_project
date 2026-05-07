@@ -1,0 +1,142 @@
+name: Frontend CI/CD
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  ci:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint if available
+        shell: bash
+        run: |
+          if node -e "process.exit(require('./package.json').scripts?.lint ? 0 : 1)"; then
+            npm run lint
+          else
+            echo "No lint script defined for frontend"
+          fi
+
+      - name: Run unit tests if available
+        shell: bash
+        run: |
+          if node -e "process.exit(require('./package.json').scripts?.test ? 0 : 1)"; then
+            npm test
+          else
+            echo "No test script defined for frontend"
+          fi
+
+      - name: Build frontend
+        run: npm run build
+
+  deploy-development:
+    name: Deploy Frontend to Development
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend for development
+        env:
+          VITE_API_MODE: direct
+          VITE_APP_ENV: dev
+          VITE_APP_VERSION: ${{ github.sha }}
+          VITE_PRODUCTS_API_URL: ${{ secrets.VITE_PRODUCTS_API_URL_DEV }}
+          VITE_ORDERS_API_URL: ${{ secrets.VITE_ORDERS_API_URL_DEV }}
+          VITE_API_GATEWAY_URL: ${{ secrets.VITE_PRODUCTS_API_URL_DEV }}
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages development
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: frontend
+          command: pages deploy dist --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=develop
+
+  deploy-production:
+    name: Deploy Frontend to Production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: ci
+    runs-on: ubuntu-latest
+    # Manual approval is configured in GitHub repository settings:
+    # Settings > Environments > production
+    environment:
+      name: production
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend for production
+        env:
+          VITE_API_MODE: direct
+          VITE_APP_ENV: prod
+          VITE_APP_VERSION: ${{ github.sha }}
+          VITE_PRODUCTS_API_URL: ${{ secrets.VITE_PRODUCTS_API_URL_PROD }}
+          VITE_ORDERS_API_URL: ${{ secrets.VITE_ORDERS_API_URL_PROD }}
+          VITE_API_GATEWAY_URL: ${{ secrets.VITE_PRODUCTS_API_URL_PROD }}
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages production
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: frontend
+          command: pages deploy dist --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}

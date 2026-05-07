@@ -1,0 +1,52 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_GATEWAY_URL: http://localhost:3001
+      VITE_ORDERS_API_URL: http://localhost:3002
+      VITE_API_MODE: direct
+    depends_on:
+      - products
+      - orders
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  products:
+    build:
+      context: ./services/products
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      AWS_REGION: us-east-1
+      PRODUCTS_TABLE: Products
+      S3_BUCKET_NAME: local-products-bucket
+      AWS_ACCESS_KEY_ID: local-access-key
+      AWS_SECRET_ACCESS_KEY: local-secret-key
+      DYNAMODB_ENDPOINT: http://host.docker.internal:8000
+    volumes:
+      - ./services/products:/usr/src/app
+      - /usr/src/app/node_modules
+
+  orders:
+    build:
+      context: ./services/orders
+    ports:
+      - "3002:3002"
+    environment:
+      ENV: dev
+      PORT: 3002
+      PRODUCTS_SERVICE_URL: http://products:3001
+      AWS_REGION: us-east-1
+      ORDERS_TABLE: Orders
+      AWS_ACCESS_KEY_ID: local-access-key
+      AWS_SECRET_ACCESS_KEY: local-secret-key
+    depends_on:
+      - products
+    volumes:
+      - ./services/orders:/usr/src/app
+      - /usr/src/app/node_modules
