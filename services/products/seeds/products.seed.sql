@@ -1,0 +1,56 @@
+INSERT OR IGNORE INTO products (
+  productId,
+  name,
+  description,
+  price,
+  category,
+  stock,
+  imageKey,
+  imageUrl,
+  isActive,
+  createdAt,
+  updatedAt,
+  currency
+) VALUES
+  (
+    'prod-1',
+    'Wireless Mouse',
+    'Ergonomic wireless mouse',
+    399.99,
+    'ACCESSORIES',
+    50,
+    NULL,
+    NULL,
+    1,
+    '2026-03-05T18:30:00.000Z',
+    '2026-03-05T18:30:00.000Z',
+    'MXN'
+  ),
+  (
+    'prod-2',
+    'Mechanical Keyboard',
+    'Compact mechanical keyboard',
+    1299.00,
+    'ACCESSORIES',
+    20,
+    NULL,
+    NULL,
+    1,
+    '2026-03-05T18:35:00.000Z',
+    '2026-03-05T18:35:00.000Z',
+    'MXN'
+  ),
+  (
+    'prod-3',
+    'USB-C Hub',
+    'Slim aluminum USB-C hub',
+    799.00,
+    'ACCESSORIES',
+    15,
+    NULL,
+    NULL,
+    1,
+    '2026-03-05T18:40:00.000Z',
+    '2026-03-05T18:40:00.000Z',
+    'MXN'
+  );

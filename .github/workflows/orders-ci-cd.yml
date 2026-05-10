@@ -1,0 +1,131 @@
+name: Orders CI/CD
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  ci:
+    name: Orders CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/orders
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: services/orders/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint if available
+        shell: bash
+        run: |
+          if node -e "process.exit(require('./package.json').scripts?.lint ? 0 : 1)"; then
+            npm run lint
+          else
+            echo "No lint script defined for services/orders"
+          fi
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run build if available
+        shell: bash
+        run: |
+          if node -e "process.exit(require('./package.json').scripts?.build ? 0 : 1)"; then
+            npm run build
+          else
+            echo "No build script defined for services/orders"
+          fi
+
+      - name: Run typecheck if available
+        shell: bash
+        run: |
+          if node -e "process.exit(require('./package.json').scripts?.typecheck ? 0 : 1)"; then
+            npm run typecheck
+          else
+            echo "No typecheck script defined for services/orders"
+          fi
+
+  deploy-development:
+    name: Deploy Orders to Development
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+    defaults:
+      run:
+        working-directory: services/orders
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: services/orders/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Worker to Cloudflare development
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: services/orders
+          command: deploy --env dev
+
+  deploy-production:
+    name: Deploy Orders to Production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: ci
+    runs-on: ubuntu-latest
+    # Manual approval is configured in GitHub repository settings:
+    # Settings > Environments > production
+    environment:
+      name: production
+    defaults:
+      run:
+        working-directory: services/orders
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: services/orders/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Worker to Cloudflare production
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: services/orders
+          command: deploy --env production

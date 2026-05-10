@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  products-service:
+    build: .
+    container_name: products-service
+    ports:
+      - "3001:3001"
+    environment:
+      - APP_VERSION=2.0.0-dev
+      - PRODUCTS_STORAGE_DRIVER=memory
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
