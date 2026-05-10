@@ -92,3 +92,6 @@ npm run build
 
 - A small banner is shown when `VITE_APP_ENV=dev`
 - The footer shows `VITE_APP_VERSION`, which can be a semantic version or a commit SHA
+
+
+Test merge
