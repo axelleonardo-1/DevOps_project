@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --config wrangler.toml --env dev --host 0.0.0.0 --port 3002",
+    "dev": "wrangler dev --config wrangler.toml --env dev --ip 0.0.0.0 --port 3002",
     "deploy": "wrangler deploy --config wrangler.toml --env production",
     "test": "vitest run --coverage",
     "test:watch": "vitest"

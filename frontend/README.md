@@ -33,6 +33,21 @@ Supported variables:
 - `VITE_API_MODE`
 - `VITE_APP_ENV`
 - `VITE_APP_VERSION`
+- `VITE_PRODUCTS_PROXY_TARGET`
+- `VITE_ORDERS_PROXY_TARGET`
+
+Recommended local `.env`:
+
+```env
+VITE_API_MODE=proxy
+VITE_APP_ENV=dev
+VITE_APP_VERSION=0.0.0-local
+VITE_PRODUCTS_API_URL=http://localhost:3001
+VITE_ORDERS_API_URL=http://localhost:3002
+VITE_API_GATEWAY_URL=http://localhost:3001
+VITE_PRODUCTS_PROXY_TARGET=http://localhost:3001
+VITE_ORDERS_PROXY_TARGET=http://localhost:3002
+```
 
 ## Environment Examples
 
@@ -45,12 +60,16 @@ VITE_APP_VERSION=0.0.0-local
 VITE_PRODUCTS_API_URL=http://localhost:3001
 VITE_ORDERS_API_URL=http://localhost:3002
 VITE_API_GATEWAY_URL=http://localhost:3001
+VITE_PRODUCTS_PROXY_TARGET=http://localhost:3001
+VITE_ORDERS_PROXY_TARGET=http://localhost:3002
 ```
 
 In proxy mode the frontend calls `/products` and `/orders` on the Vite origin, and Vite forwards them to:
 
 - `http://localhost:3001` for products
 - `http://localhost:3002` for orders
+
+When the frontend runs inside Docker Compose, those proxy targets should point to the backend service names so the Vite container can reach them.
 
 Direct local mode:
 
@@ -73,6 +92,34 @@ VITE_ORDERS_API_URL=https://orders.example.workers.dev
 ```
 
 If `VITE_PRODUCTS_API_URL` or `VITE_ORDERS_API_URL` is not provided, the app falls back to `VITE_API_GATEWAY_URL`. Safe local defaults are still kept for development.
+
+## Docker Compose Localhost
+
+The repository root includes a `docker-compose.yml` that starts the full localhost environment with one command:
+
+```bash
+docker compose up --build
+```
+
+If you use `just`, the same flow is available from the repository root with:
+
+```bash
+just up
+```
+
+To create `frontend/.env` from the example file:
+
+```bash
+just frontend-env
+```
+
+This starts:
+
+- Vite frontend on `http://localhost:5173`
+- products Worker on `http://localhost:3001`
+- orders Worker on `http://localhost:3002`
+
+The recommended frontend mode for that workflow is `VITE_API_MODE=proxy`.
 
 ## Running the App
 
