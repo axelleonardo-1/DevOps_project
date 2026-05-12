@@ -5,6 +5,9 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 
+const productsProxyTarget = process.env.VITE_PRODUCTS_PROXY_TARGET || 'http://localhost:3001'
+const ordersProxyTarget = process.env.VITE_ORDERS_PROXY_TARGET || 'http://localhost:3002'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -15,11 +18,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/products': {
-        target: 'http://localhost:3001',
+        target: productsProxyTarget,
         changeOrigin: true,
       },
       '/orders': {
-        target: 'http://localhost:3002',
+        target: ordersProxyTarget,
         changeOrigin: true,
       },
     },

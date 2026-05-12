@@ -60,7 +60,12 @@ jobs:
         id: tags
         shell: bash
         run: |
-          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image.repository }}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            IMAGE_NAME="${{ matrix.image.repository }}"
+          else
+            IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.image.repository }}"
+          fi
+
           TAGS="${IMAGE_NAME}:${{ steps.meta.outputs.branch }},${IMAGE_NAME}:${{ steps.meta.outputs.short_sha }}"
 
           if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
@@ -69,6 +74,15 @@ jobs:
 
           echo "image_name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
           echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate Docker Hub secrets
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are required for push builds."
+            exit 1
+          fi
 
       - name: Build image for validation
         if: github.event_name == 'pull_request'

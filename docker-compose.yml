@@ -5,9 +5,14 @@ services:
     ports:
       - "5173:5173"
     environment:
-      VITE_API_GATEWAY_URL: http://localhost:3001
+      VITE_API_MODE: proxy
+      VITE_APP_ENV: dev
+      VITE_APP_VERSION: 0.0.0-local
+      VITE_PRODUCTS_API_URL: http://localhost:3001
       VITE_ORDERS_API_URL: http://localhost:3002
-      VITE_API_MODE: direct
+      VITE_API_GATEWAY_URL: http://localhost:3001
+      VITE_PRODUCTS_PROXY_TARGET: http://products:3001
+      VITE_ORDERS_PROXY_TARGET: http://orders:3002
     depends_on:
       - products
       - orders
@@ -18,16 +23,15 @@ services:
   products:
     build:
       context: ./services/products
+    command:
+      - sh
+      - -c
+      - >-
+        npx wrangler d1 migrations apply DB --local --env dev &&
+        npx wrangler d1 execute DB --local --env dev --file=./seeds/products.seed.sql &&
+        npm run dev
     ports:
       - "3001:3001"
-    environment:
-      PORT: 3001
-      AWS_REGION: us-east-1
-      PRODUCTS_TABLE: Products
-      S3_BUCKET_NAME: local-products-bucket
-      AWS_ACCESS_KEY_ID: local-access-key
-      AWS_SECRET_ACCESS_KEY: local-secret-key
-      DYNAMODB_ENDPOINT: http://host.docker.internal:8000
     volumes:
       - ./services/products:/usr/src/app
       - /usr/src/app/node_modules
@@ -35,16 +39,14 @@ services:
   orders:
     build:
       context: ./services/orders
+    command:
+      - sh
+      - -c
+      - >-
+        npx wrangler d1 migrations apply DB --local --env dev &&
+        npx wrangler dev --config wrangler.toml --env dev --ip 0.0.0.0 --port 3002 --var PRODUCTS_SERVICE_URL:http://products:3001
     ports:
       - "3002:3002"
-    environment:
-      ENV: dev
-      PORT: 3002
-      PRODUCTS_SERVICE_URL: http://products:3001
-      AWS_REGION: us-east-1
-      ORDERS_TABLE: Orders
-      AWS_ACCESS_KEY_ID: local-access-key
-      AWS_SECRET_ACCESS_KEY: local-secret-key
     depends_on:
       - products
     volumes:

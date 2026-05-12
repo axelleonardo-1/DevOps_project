@@ -48,7 +48,13 @@ Esta fase no:
 
 ## Desarrollo con Docker Compose
 
-El repositorio incluye un entorno de desarrollo local con Docker Compose para levantar el frontend y ambos servicios sin cambiar su comportamiento actual.
+El repositorio incluye un entorno local con Docker Compose pensado para la arquitectura actual del proyecto:
+
+- `frontend` corre con Vite
+- `services/products` corre con `wrangler dev`
+- `services/orders` corre con `wrangler dev`
+- ambos servicios usan D1 local para datos
+- `products` usa R2 local para imagenes
 
 Servicios expuestos:
 
@@ -56,17 +62,26 @@ Servicios expuestos:
 - `products` en `http://localhost:3001`
 - `orders` en `http://localhost:3002`
 
-Variables configuradas en Compose:
+Comportamiento del entorno local:
 
-- frontend usa `VITE_API_GATEWAY_URL=http://localhost:3001`
-- frontend usa `VITE_ORDERS_API_URL=http://localhost:3002`
-- orders usa `ENV=dev`
-- orders usa `PRODUCTS_SERVICE_URL=http://products:3001`
+- `frontend` usa `VITE_API_MODE=proxy`
+- Vite redirige `/products` a `http://localhost:3001`
+- Vite redirige `/orders` a `http://localhost:3002`
+- `orders` usa `PRODUCTS_SERVICE_URL=http://products:3001` para comunicacion interna entre contenedores
+- al iniciar Compose se aplican las migraciones D1 locales
+- el servicio de productos tambien ejecuta el seed local en cada arranque
+- el estado local es efimero y esta pensado para desarrollo o demo
 
-Para iniciar el entorno:
+Para iniciar el entorno completo:
 
 ```bash
 docker compose up --build
+```
+
+Tambien puedes usar `just` desde la raiz del repositorio:
+
+```bash
+just up
 ```
 
 Para detenerlo:
@@ -75,13 +90,21 @@ Para detenerlo:
 docker compose down
 ```
 
+Comandos utiles con `just`:
+
+- `just frontend-env` crea `frontend/.env` desde `frontend/.env.example`
+- `just down` detiene el entorno
+- `just restart` reinicia el entorno completo
+- `just logs` sigue los logs de Compose
+- `just ps` muestra el estado de los contenedores
+
 Notas:
 
 - este entorno es solo para desarrollo local y evidencia de presentacion
-- Docker Hub se usa como evidencia de artefactos para la rubrica y demostracion
 - produccion no corre en contenedores Docker
 - produccion se despliega en Cloudflare Workers para backend y Cloudflare Pages para frontend
-- las variables de DynamoDB y S3 se mantienen con valores locales de ejemplo para no cambiar la logica existente
+- el backend local usa la configuracion actual basada en Wrangler, D1 y R2
+- no se requiere Postgres ni MinIO para el flujo local soportado por el codigo actual
 
 ---
 Para instrucciones especificas sobre dependencias, configuracion o ejecucion local de cada aplicacion o servicio, consulta la documentacion dentro de `frontend`, `services/products` y `services/orders`.

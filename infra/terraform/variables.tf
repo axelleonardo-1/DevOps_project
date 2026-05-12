@@ -9,11 +9,6 @@ variable "account_id" {
   type        = string
 }
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for the frontend domain."
-  type        = string
-}
-
 variable "project_name" {
   description = "Base project name used to derive Cloudflare resource names."
   type        = string

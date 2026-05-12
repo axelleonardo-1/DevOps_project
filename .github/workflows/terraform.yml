@@ -20,7 +20,6 @@ jobs:
     env:
       TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      TF_VAR_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       TF_VAR_project_name: devops-ecommerce
       TF_VAR_environment: github-actions
 
@@ -51,7 +50,6 @@ jobs:
     env:
       TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      TF_VAR_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       TF_VAR_project_name: devops-ecommerce
       TF_VAR_environment: ${{ github.event_name == 'pull_request' && 'pull-request' || 'development' }}
 
@@ -84,7 +82,6 @@ jobs:
     env:
       TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      TF_VAR_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       TF_VAR_project_name: devops-ecommerce
       TF_VAR_environment: production
 

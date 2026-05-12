@@ -1,6 +1,5 @@
 cloudflare_api_token = "cf_api_token_placeholder"
 account_id           = "1234567890abcdef1234567890abcdef"
-zone_id              = "abcdef1234567890abcdef1234567890"
 project_name         = "devops-ecommerce"
 environment          = "demo"
 
