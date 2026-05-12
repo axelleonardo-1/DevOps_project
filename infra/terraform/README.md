@@ -51,7 +51,6 @@ Before running Terraform, make sure you have:
 - a Cloudflare account
 - a Cloudflare API token with permissions for D1 and R2
 - your Cloudflare `account_id`
-- your Cloudflare `zone_id`
 
 ## Setup
 
