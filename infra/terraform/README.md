@@ -98,12 +98,11 @@ terraform apply
 
 After Terraform finishes:
 
-1. Copy the D1 database IDs from the Terraform outputs.
-2. Copy the R2 bucket names if R2 is enabled.
-3. Update the `wrangler.toml` files in:
-   - `services/products`
-   - `services/orders`
-4. Add the same values to GitHub repository or environment secrets if your CI/CD flow expects them.
+1. Keep the D1 database outputs available as the source of truth for the shared `dev` and `prod` databases.
+2. Keep the R2 bucket names available if R2 is enabled.
+3. Add environment-specific GitHub secrets required by CI/CD for development if you keep the standalone `develop` deploy jobs.
+4. In production, `release-main.yml` resolves the shared D1 and R2 resources by name, deploys the Workers in sequence, and passes the published Worker URLs to downstream jobs.
+5. The checked-in `wrangler.toml` files remain local-development friendly because CI renders a temporary Wrangler config during deploy.
 
 ## Resource Ownership Summary
 

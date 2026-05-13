@@ -63,17 +63,19 @@ The Worker configuration lives in `wrangler.toml`.
 - `APP_VERSION` and `ORDERS_STORAGE_DRIVER` are exposed as Worker vars.
 - `PAYMENT_DELAY_MS` can be reduced to `0` in tests or local scenarios.
 - `DB` is the D1 binding used by the repository.
+- Local development still uses the checked-in `wrangler.toml` placeholders.
+- CI/CD renders a temporary Wrangler config with the real shared D1 ID and the environment-specific `PRODUCTS_SERVICE_URL` before deploy.
 
 ## D1 Setup
 
-Create the D1 databases:
+Create the shared D1 databases once per environment:
 
 ```bash
-npx wrangler d1 create orders-db-dev
-npx wrangler d1 create orders-db-prod
+npx wrangler d1 create devops-ecommerce-dev
+npx wrangler d1 create devops-ecommerce-prod
 ```
 
-After creation, copy the real `database_id` values into `wrangler.toml`.
+Both Workers point to the same D1 database in each environment. In CI/CD, the deploy workflow resolves the real `database_id` by database name before applying migrations and deploying the Worker.
 
 Run migrations locally:
 

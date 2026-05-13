@@ -19,7 +19,7 @@ PAYMENT_DELAY_MS = "10"
 
 [[env.dev.d1_databases]]
 binding = "DB"
-database_name = "orders-db-dev"
+database_name = "devops-ecommerce-dev"
 database_id = "00000000-0000-0000-0000-000000000301"
 preview_database_id = "00000000-0000-0000-0000-000000000311"
 migrations_dir = "migrations"
@@ -35,7 +35,7 @@ PAYMENT_DELAY_MS = "25"
 
 [[env.production.d1_databases]]
 binding = "DB"
-database_name = "orders-db-prod"
+database_name = "devops-ecommerce-prod"
 database_id = "00000000-0000-0000-0000-000000000401"
 preview_database_id = "00000000-0000-0000-0000-000000000411"
 migrations_dir = "migrations"

@@ -64,19 +64,19 @@ The Worker configuration lives in `wrangler.toml`.
 
 - `env.dev` and `env.production` both define a D1 binding named `DB`.
 - `env.dev` and `env.production` both define an R2 binding named `PRODUCT_IMAGES_BUCKET`.
-- Replace the placeholder `database_id` values with real D1 database IDs after running `wrangler d1 create`.
-- Replace the bucket names if your environments use different R2 buckets.
+- Local development still uses the checked-in `wrangler.toml` placeholders.
+- CI/CD renders a temporary Wrangler config with the real shared D1 ID and R2 bucket name before deploy.
 
 ## D1 Setup
 
-Create the D1 databases:
+Create the shared D1 databases once per environment:
 
 ```bash
-npx wrangler d1 create products-db-dev
-npx wrangler d1 create products-db-prod
+npx wrangler d1 create devops-ecommerce-dev
+npx wrangler d1 create devops-ecommerce-prod
 ```
 
-After creation, copy the real `database_id` values into `wrangler.toml`.
+Both Workers point to the same D1 database in each environment. In CI/CD, the deploy workflow resolves the real `database_id` by database name before applying migrations and deploying the Worker.
 
 Run migrations locally:
 
@@ -107,8 +107,8 @@ npx wrangler d1 execute DB --remote --env production --file=./seeds/products.see
 Create the R2 buckets:
 
 ```bash
-npx wrangler r2 bucket create products-images-dev
-npx wrangler r2 bucket create products-images-prod
+npx wrangler r2 bucket create devops-ecommerce-product-images-dev
+npx wrangler r2 bucket create devops-ecommerce-product-images-prod
 ```
 
 The Worker stores product images in R2 and serves them through:

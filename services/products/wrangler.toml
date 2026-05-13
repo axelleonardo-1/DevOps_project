@@ -17,7 +17,7 @@ MAX_PRODUCT_IMAGE_BYTES = "5242880"
 
 [[env.dev.d1_databases]]
 binding = "DB"
-database_name = "products-db-dev"
+database_name = "devops-ecommerce-dev"
 database_id = "00000000-0000-0000-0000-000000000101"
 preview_database_id = "00000000-0000-0000-0000-000000000111"
 migrations_dir = "migrations"
@@ -36,7 +36,7 @@ MAX_PRODUCT_IMAGE_BYTES = "5242880"
 
 [[env.production.d1_databases]]
 binding = "DB"
-database_name = "products-db-prod"
+database_name = "devops-ecommerce-prod"
 database_id = "00000000-0000-0000-0000-000000000201"
 preview_database_id = "00000000-0000-0000-0000-000000000211"
 migrations_dir = "migrations"
