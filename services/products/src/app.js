@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 
 import { AppError, toErrorResponse } from './lib/errors.js'
 import { getRuntimeConfig } from './lib/runtime-config.js'
@@ -8,6 +9,7 @@ import { productsRouter } from './routes/products.routes.js'
 export function createApp() {
   const app = new Hono()
 
+  app.use('*', cors())
   app.use('*', requestLogger())
 
   app.get('/health', (c) => {
