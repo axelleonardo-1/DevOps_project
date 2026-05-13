@@ -29,6 +29,10 @@ ps:
 frontend-env:
     cp frontend/.env.example frontend/.env
 
+frontend-build:
+    [ -d frontend/node_modules ] || npm --prefix frontend ci
+    npm --prefix frontend run build
+
 tf-init:
     terraform -chdir=infra/terraform init
 
